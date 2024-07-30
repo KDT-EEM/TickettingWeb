@@ -2050,6 +2050,7 @@ Ticket Details Page
   float: left;
   font-size: 20px;
   margin-top: 8px;
+  display: flex;
 }
 
 .ticket-details-page .right-content .total .main-dark-button {

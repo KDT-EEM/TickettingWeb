@@ -117,6 +117,22 @@ $conn->close();
         .selected-seats {
             margin-bottom: 10px;
         }
+        .selected-seats ul {
+    display: flex;
+    flex-direction: row; /* 수평으로 나열 */
+    flex-wrap: wrap; /* 필요한 경우 자동으로 줄바꿈 */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.selected-seats li {
+    background-color: #f0f0f0; /* 항목 배경색 */
+    border: 1px solid #ccc; /* 항목 테두리 */
+    border-radius: 3px; /* 둥근 모서리 */
+    padding: 5px 10px; /* 여백 */
+    margin-right: 10px; /* 항목 사이에 여백 */
+    display: inline-block; /* 인라인 블록으로 표시 */
+}
     </style>
 </head>
 <body>
@@ -147,54 +163,64 @@ $conn->close();
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const seatElements = document.querySelectorAll('.seat-grid .seat');
-            const selectedSeatsList = document.getElementById('selected-seats-list');
-            const form = document.getElementById('reservation-form');
-            const errorMessage = document.getElementById('error-message');
+document.addEventListener('DOMContentLoaded', function () {
+    const seatElements = document.querySelectorAll('.seat-grid .seat');
+    const selectedSeatsList = document.getElementById('selected-seats-list');
+    const form = document.getElementById('reservation-form');
+    const errorMessage = document.getElementById('error-message');
 
-            function updateErrorMessage() {
-                const selectedSeats = document.querySelectorAll('.seat-grid .seat.selected');
-                if (selectedSeats.length === 0) {
-                    errorMessage.textContent = '좌석을 선택하지 않았습니다.';
-                } else {
-                    errorMessage.textContent = '';
+    function updateErrorMessage() {
+        const selectedSeats = document.querySelectorAll('.seat-grid .seat.selected');
+        if (selectedSeats.length === 0) {
+            errorMessage.textContent = '좌석을 선택하지 않았습니다.';
+        } else if (selectedSeats.length > 2) {
+            errorMessage.textContent = '최대 2개의 좌석만 선택할 수 있습니다.';
+        } else {
+            errorMessage.textContent = '';
+        }
+    }
+
+    seatElements.forEach(seat => {
+        seat.addEventListener('click', function () {
+            const seatNumber = this.getAttribute('data-seat');
+            const selectedSeats = document.querySelectorAll('.seat-grid .seat.selected');
+            if (this.classList.contains('checked') || this.classList.contains('selected')) {
+                this.classList.remove('selected');
+                // Remove from list
+                const listItem = document.querySelector(`li[data-seat="${seatNumber}"]`);
+                if (listItem) {
+                    listItem.remove();
                 }
+            } else {
+                if (selectedSeats.length >= 2) {
+                    errorMessage.textContent = '최대 2개의 좌석만 선택할 수 있습니다.';
+                    return; // 2개 이상 선택할 수 없도록
+                }
+                this.classList.add('selected');
+                // Add to list
+                const listItem = document.createElement('li');
+                listItem.setAttribute('data-seat', seatNumber);
+                listItem.textContent = `Seat ${seatNumber}`;
+                selectedSeatsList.appendChild(listItem);
             }
-
-            seatElements.forEach(seat => {
-                seat.addEventListener('click', function () {
-                    const seatNumber = this.getAttribute('data-seat');
-                    if (this.classList.contains('checked') || this.classList.contains('selected')) {
-                        this.classList.remove('selected');
-                        // Remove from list
-                        const listItem = document.querySelector(`li[data-seat="${seatNumber}"]`);
-                        if (listItem) {
-                            listItem.remove();
-                        }
-                    } else {
-                        this.classList.add('selected');
-                        // Add to list
-                        const listItem = document.createElement('li');
-                        listItem.setAttribute('data-seat', seatNumber);
-                        listItem.textContent = `Seat ${seatNumber}`;
-                        selectedSeatsList.appendChild(listItem);
-                    }
-                    updateErrorMessage();
-                });
-            });
-
-            form.addEventListener('submit', function (event) {
-                const selectedSeats = document.querySelectorAll('.seat-grid .seat.selected');
-                if (selectedSeats.length === 0) {
-                    errorMessage.textContent = '좌석을 선택하지 않았습니다.';
-                    event.preventDefault(); // 폼 제출 막기
-                } else {
-                    errorMessage.textContent = '';
-                }
-            });
+            updateErrorMessage();
         });
-    </script>
+    });
+
+    form.addEventListener('submit', function (event) {
+        const selectedSeats = document.querySelectorAll('.seat-grid .seat.selected');
+        if (selectedSeats.length === 0) {
+            errorMessage.textContent = '좌석을 선택하지 않았습니다.';
+            event.preventDefault(); // 폼 제출 막기
+        } else if (selectedSeats.length > 2) {
+            errorMessage.textContent = '최대 2개의 좌석만 선택할 수 있습니다.';
+            event.preventDefault(); // 폼 제출 막기
+        } else {
+            errorMessage.textContent = '';
+        }
+    });
+});
+</script>
 </body>
 </html>
 

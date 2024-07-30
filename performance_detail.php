@@ -176,12 +176,13 @@ $conn->close();
                             </div>
                             <div class="right-content">
                                 <div class="quantity buttons_added">
-                                    <input type="button" value="-" class="minus"><input type="number" step="1" min="1" max="1" name="quantity" value="1" title="Qty" class="input-text qty text" size="4" pattern="" inputmode=""><input type="button" value="+" class="plus">
+                                    <input type="button" value="-" class="minus"><input type="number" step="1" min="1" max="2" name="quantity" value="1" title="Qty" class="input-text qty text" size="4" pattern="" inputmode=""><input type="button" value="+" class="plus">
                                 </div>
                             </div>
                         </div>
                         <div class="total">
-    <h4>Total: $<?php echo htmlspecialchars($event_cost); ?></h4>
+                        <h4 id="total-price">Total: $<?php echo htmlspecialchars($event_cost); ?></h4>
+
     <div class="main-dark-button">
         <a href="purchase_ticket.php?performance_id=<?php echo htmlspecialchars($performance_id); ?>">Purchase Tickets</a>
     </div>
@@ -315,6 +316,40 @@ $conn->close();
     
     <!-- Global Init -->
     <script src="assets/js/custom.js"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 요소 참조
+    const quantityInput = document.querySelector('input[name="quantity"]');
+    const totalPriceElement = document.getElementById('total-price');
+    const unitPrice = parseFloat("<?php echo htmlspecialchars($event_cost); ?>");
+
+    // 수량 변경 시 총 가격 업데이트
+    function updateTotalPrice() {
+        const quantity = parseInt(quantityInput.value, 10);
+        const totalPrice = unitPrice * quantity;
+        totalPriceElement.textContent = `Total: $${totalPrice.toFixed(2)}`;
+    }
+
+    // 수량 입력 필드에 이벤트 리스너 추가
+    quantityInput.addEventListener('input', updateTotalPrice);
+
+    // 수량 증가 버튼 클릭 시 이벤트 처리
+    document.querySelector('.plus').addEventListener('click', function() {
+        quantityInput.stepUp();
+        updateTotalPrice();
+    });
+
+    // 수량 감소 버튼 클릭 시 이벤트 처리
+    document.querySelector('.minus').addEventListener('click', function() {
+        quantityInput.stepDown();
+        updateTotalPrice();
+    });
+
+    // 초기 로드 시 총 가격 설정
+    updateTotalPrice();
+});
+</script>
+
 
   </body>
 
